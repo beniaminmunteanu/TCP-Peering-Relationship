@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import dotenv from 'dotenv';
 import { ClientService } from './clientService';
 import { ConnectionService } from './connectionService';
