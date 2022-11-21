@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "Debug payment server",
+          "type": "node",
+          "request": "launch",
+          "args": ["${workspaceFolder}/src/index.ts"],
+          "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
+          "internalConsoleOptions": "openOnSessionStart",
+          "envFile": "${workspaceFolder}/.env",
+          "sourceMaps": true,
+          "console": "internalConsole",
+          "outputCapture": "std",
+      }
+  ]
+}
+
