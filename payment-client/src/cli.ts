@@ -6,7 +6,7 @@ export class Cli {
     bottomBar = new inquirer.ui.BottomBar();
     spinner: Spinner | undefined;
 
-    info(message: string, color: 'green' | 'yellow') {
+    info(message: string, color?: 'green' | 'yellow') {
         switch (color) {
             case 'green':
                 this.bottomBar.log.write(chalk.greenBright(message));
@@ -28,7 +28,7 @@ export class Cli {
         this.spinner && this.spinner.success();
     }
 
-    async showBalance(balance: number) {
+    showBalance(balance: number) {
         this.info(`Current balance is : ${balance}`, 'yellow');
     }
 
