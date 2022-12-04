@@ -1,21 +1,27 @@
 import { Cli } from './cli';
 import { PromptOptions } from './models/PromptOptions.enum';
+import { SocketMessages } from './models/socketMessages.enum';
 import { CustomSocket } from './socket';
 
 export class Client {
     public balance = 0;
-    onPending(message: string) {
+    private onPending(message: string) {
         this.cli.startSpinner(message, { color: 'red' });
     }
 
-    async onPeeringRelationshipEstablished(message: string) {
+    registerCallback(onMessage: string, cb: (data: string) => void): void {
+        this.socket.callbackByData(onMessage, cb);
+    }
+
+    private async onPeeringRelationshipEstablished(message: string) {
         this.balance = 0;
         this.cli.stopSpinner();
         this.cli.info(message, 'yellow');
-        await this.handleOptionInput(await this.cli.askForOptions());
+        const option = await this.cli.askForOptions();
+        await this.handleOptionInput(option);
     }
 
-    onPayReceived(message: string) {
+    private onPayReceived(message: string) {
         try {
             const amount = Number(message.split('{{')[1].split('}}')[0]);
             this.cli.info(`You received ${amount}`, 'green');
@@ -28,12 +34,13 @@ export class Client {
     private async handleOptionInput(option: PromptOptions) {
         if (option === PromptOptions.balance) {
             this.cli.showBalance(this.balance);
-            await this.handleOptionInput(await this.cli.askForOptions());
+            const option = await this.cli.askForOptions();
+            await this.handleOptionInput(option);
         } else if (option === PromptOptions.pay) {
             const amount = await this.cli.askAmount();
             this.send(amount);
-
-            this.handleOptionInput(await this.cli.askForOptions());
+            const option = await this.cli.askForOptions();
+            this.handleOptionInput(option);
         }
     }
 
@@ -50,5 +57,9 @@ export class Client {
         );
     }
 
-    constructor(private socket: CustomSocket, private cli: Cli) {}
+    constructor(private socket: CustomSocket, private cli: Cli) {
+        this.registerCallback(SocketMessages.PENDING, this.onPending.bind(this));
+        this.registerCallback(SocketMessages.REL_ESTABLISHED, this.onPeeringRelationshipEstablished.bind(this));
+        this.registerCallback(SocketMessages.PAY, this.onPayReceived.bind(this));
+    }
 }

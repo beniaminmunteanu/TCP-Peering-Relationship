@@ -1,19 +1,13 @@
 import net, { NetConnectOpts, Socket } from 'net';
-import { EventEmitter } from 'events';
 
 export class CustomSocket {
     private socket: Socket;
 
-    public registerMessageEmitter(message: string): EventEmitter {
-        const eventEmitter = new EventEmitter();
-
-        this.socket.on('data', (data) => {
+    public callbackByData(message: string, cb: (data: string) => void) {
+        this.socket.on('data', (data: Buffer) => {
             const stringData = data.toString();
-            if (stringData.search(message) !== -1) {
-                eventEmitter.emit(message, data.toString());
-            }
+            stringData.search(message) !== -1 && cb(stringData);
         });
-        return eventEmitter;
     }
 
     public write(message: string, onSuccess: () => void, onError: () => void) {

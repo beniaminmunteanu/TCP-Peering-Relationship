@@ -63,22 +63,19 @@ describe('Custom socket', () => {
         });
     });
 
-    describe('register Message Emitter', () => {
-        it('should return a new emitter that emits when given message is received', () => {
+    describe('callback by data', () => {
+        it('should add a given callback to a given message received on the data event of the socket', () => {
             const emitter = new EventEmitter();
 
             (net.connect as jest.Mock).mockReturnValue(emitter);
             const customSocket = new CustomSocket({ port: 3000, host: '127.0.0.1' });
+            const callback = jest.fn();
 
-            const returnedEmitter = customSocket.registerMessageEmitter('test');
-            const emitSpy = jest.spyOn(returnedEmitter, 'emit');
+            customSocket.callbackByData('test', callback);
 
-            emitter.on('test', () => {
-                console.log('test');
-            });
             emitter.emit('data', 'test');
 
-            expect(emitSpy).toHaveBeenCalled();
+            expect(callback).toHaveBeenCalled();
         });
     });
 });
